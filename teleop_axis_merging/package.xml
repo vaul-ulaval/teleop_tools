@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>teleop</name>
+  <name>teleop_axis_merging</name>
   <version>0.0.1</version>
   <description>
     This package contains necessary nodes for teleoperation of the robot. 
