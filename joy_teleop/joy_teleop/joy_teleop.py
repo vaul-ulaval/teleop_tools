@@ -89,7 +89,7 @@ class JoyTeleopCommand:
 
         # Used to short-circuit the run command if there aren't enough buttons in the message.
         self.min_button = 0
-        if len(self.buttons) > 0:
+        if len(self.buttons) > 0 and 'default' not in self.buttons:
             self.min_button = int(min(self.buttons))
         self.min_axis = 0
         if len(self.axes) > 0:
