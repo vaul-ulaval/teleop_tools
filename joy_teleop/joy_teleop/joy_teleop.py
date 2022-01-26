@@ -111,6 +111,8 @@ class JoyTeleopCommand:
         for button in self.buttons:
             if button == 'default' and sum(joy_state.buttons) == 0:
                 self.active = True
+            elif button == 'default' and sum(joy_state.buttons) > 0:
+                pass
             else:
                 try:
                     self.active |= joy_state.buttons[button] == 1
