@@ -392,6 +392,8 @@ class JoyTeleop(Node):
         self._subscription = self.create_subscription(
             sensor_msgs.msg.Joy, 'joy', self.joy_callback, qos)
 
+        self.last_message_timestamp = self.get_clock().now()
+
     def retrieve_config(self):
         config = {}
         for param_name in sorted(self._parameters.keys()):
@@ -408,17 +410,31 @@ class JoyTeleop(Node):
                 dictionary[split[0]] = {}
             self.insert_dict(dictionary[split[0]], split[2], value)
 
+    def send_brake_command(self):
+        for command in self.commands:
+            if(command.name == "default"):
+                #self.get_logger().info("SENDING DEFAULT COMMAND")
+                #command.run(self, sensor_msgs.msg.Joy())
+                command.pub.publish(command.topic_type())
+
+    
     def joy_callback(self, msg: sensor_msgs.msg.Joy) -> None:
+        self.last_message_timestamp = self.get_clock().now()
         for command in self.commands:
             command.run(self, msg)
-
 
 def main(args=None):
     rclpy.init(args=args)
     node = JoyTeleop()
 
     try:
-        rclpy.spin(node)
+        while(True):
+            rclpy.spin_once(node, timeout_sec=0.1)
+            duration = node.get_clock().now() - node.last_message_timestamp
+            duration_sec = duration.to_msg().sec + duration.to_msg().nanosec / 1e9
+            if (duration_sec > 0.2):
+                node.send_brake_command()
+
     except JoyTeleopException as e:
         node.get_logger().error(e.message)
     except KeyboardInterrupt:
