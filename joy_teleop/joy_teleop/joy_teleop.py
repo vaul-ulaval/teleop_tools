@@ -415,7 +415,9 @@ class JoyTeleop(Node):
             if(command.name == "default"):
                 #self.get_logger().info("SENDING DEFAULT COMMAND")
                 #command.run(self, sensor_msgs.msg.Joy())
-                command.pub.publish(command.topic_type())
+                msg = command.topic_type()
+                msg.header.stamp = self.get_clock().now().to_msg()
+                command.pub.publish(msg)
 
     
     def joy_callback(self, msg: sensor_msgs.msg.Joy) -> None:
@@ -432,7 +434,7 @@ def main(args=None):
             rclpy.spin_once(node, timeout_sec=0.1)
             duration = node.get_clock().now() - node.last_message_timestamp
             duration_sec = duration.to_msg().sec + duration.to_msg().nanosec / 1e9
-            if (duration_sec > 0.2):
+            if (duration_sec > 0.5):
                 node.send_brake_command()
 
     except JoyTeleopException as e:
